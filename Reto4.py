@@ -1,9 +1,9 @@
 import os, csv
 import matplotlib as plt
-import numpy as np 
-ruta_archivo="\\Directorios\\prog-2510-eval-u4-Nieto08"
-ruta_archivotxt="\\Directorios\\prog-2510-eval-u4-Nieto08\\archivotxt.txt"
-ruta_archivocsv= "\\Directorios\\prog-2510-eval-u4-Nieto08\\Operaciones_Salidas.csv"
+import matplotlib.pyplot  as plt
+ruta_archivo= os.getcwd()
+ruta_archivotxt= os.path.join(ruta_archivo, "archivotxt.txt")
+ruta_archivocsv= os.path.join(ruta_archivo, "Operaciones_Salidas.csv")
 def contar_palabra():
     with open(ruta_archivotxt, "r") as archivo:
         contenido= archivo.read().split()
@@ -20,7 +20,7 @@ def cambiar_palabra(palabra_vieja, palabra_nueva):
     with open(ruta_archivotxt, "r") as archivo:
         contenido= archivo.readlines()
         variable= ""
-        for linea in contenido:
+        for linea in contenido:  
             contenido_separado = linea.split()
             for palabra in range(len(contenido_separado)):
                 if contenido_separado[palabra] == palabra_vieja:
@@ -41,38 +41,97 @@ def mostrar_lineas(n_filas):
 def calcular_estadisticas():
     pesos = []
     horas = []
-    
-    try:
-        with open(ruta_archivocsv, 'r',) as archivo:
-            lector = csv.reader(archivo)
-            next(lector)  # Saltar encabezado (si existe)
-            
-            for fila in lector:
-                try:
-                    pesos.append(float(fila[2]))  # Columna 3 (peso)
-                    horas.append(float(fila[8]))  # Columna 9 (hora)
-                except (ValueError, IndexError):
-                    continue  # Ignorar filas con datos inválidos
-        
-        if not pesos or not horas:
-            return "No hay datos válidos en las columnas especificadas."
-        
-        peso_media= sum(pesos) / len(pesos)
-        peso_maximo= max(pesos)
-        peso_Mínimo= min(pesos)
+    texto = ""
 
-        hora_Media= sum(horas) / len(horas)
-        hora_Máximo = max(horas)
-        hora_Mínimo= min(horas)
-        texto= (f"{peso_media}{peso_maximo}{peso_Mínimo}{hora_Media}{hora_Máximo}{hora_Mínimo}")
-            
+    with open(ruta_archivocsv, 'r',) as archivo:
+        lector = csv.reader(archivo)
+        next(lector)  # Saltar encabezado (si existe)
         
-        return texto
+        for fila in lector:
+            pesos.append(float(fila[2]))  # Columna 3 (peso)
+
+            hora = fila[8].split(":")[0]  # Hora
+            minutos = fila[8].split(":")[1]  # Minutos
+            horas.append(float(hora) + float(minutos)/60)  # Convertir a horas decimales
     
-    except FileNotFoundError:
-        return "Error: Archivo no encontrado."
-    except Exception as e:
-        return f"Error inesperado: {str(e)}"
+    peso_media= sum(pesos) / len(pesos)
+    peso_maximo= max(pesos)
+    peso_Mínimo= min(pesos)
+
+    hora_media= sum(horas) / len(horas)
+    hora_maxima = max(horas)
+    hora_minima= min(horas)
+
+    
+    texto += "PESO:\n"
+    texto += (f"Peso medio: {peso_media:.3f}\nPeso maximo: {peso_maximo}\nPeso minimo: {peso_Mínimo}\n")
+    texto += "\nHORA DE SALIDA:\n"
+    texto += (f"Hora media: {convertir_hora(hora_media)}\nHora maxima: {convertir_hora(hora_maxima)}\nHora minima: {convertir_hora(hora_minima)}\n")
+        
+    return texto
+def convertir_hora(hora_decimal):
+    horas = int(hora_decimal)
+    minutos = int(round((hora_decimal - horas) * 60))
+    return f"{horas:02}:{minutos:02}"
+
+def mostrar_histograma():
+    with open(ruta_archivotxt, "r") as archivo:
+        conteo_vocales={"A":0,"E":0,"I":0,"O":0,"U":0}
+        for text in archivo:
+            for letras in text.split():
+                for vocal in letras.upper():
+                    try:
+                        if vocal in conteo_vocales:
+                            conteo_vocales[vocal] += 1 
+                    except ValueError:
+                        print ("no es vocal")
+
+        plt.title("Histograma")
+        plt.xlabel("Vocales")
+        plt.ylabel("Frecuencia")
+        
+        x_pos = range(5) # 5 Vocales
+        plt.bar(x_pos, list(conteo_vocales.values()), width=0.7, color="pink", edgecolor="purple")
+        # Etiquetas centradas
+        plt.xticks(x_pos, list(conteo_vocales.keys()))
+        plt.show()
+def graficar():
+    with open(ruta_archivocsv, 'r',) as archivo:
+        lector = csv.reader(archivo)
+        next(lector)  # Saltar encabezado (si existe)
+        datos = {}
+        conteo = {}
+
+        for fila in lector:
+            aerolinea = fila[4]  # Columna 5 (aerolinea)
+            peso = float(fila[2])  # Columna 3 (peso)
+
+            if aerolinea in datos:
+                datos[aerolinea] += peso
+                conteo[aerolinea] += 1
+            else:
+                datos[aerolinea] = peso
+                conteo[aerolinea] = 1
+
+        for aerolinea in datos:
+            datos[aerolinea] = float(datos[aerolinea]/ conteo[aerolinea])  # Calcular el promedio)
+
+        # Obtener las 50 aerolíneas más frecuentes
+        top_50_aerolineas = sorted(conteo.items(), key=lambda x: x[1], reverse=True)[:50]
+        datos_filtrados = {}
+        for x in top_50_aerolineas:
+            datos_filtrados[x[0]] = datos[x[0]]
+        
+        fig, ax = plt.subplots(figsize=(len(datos_filtrados) * 0.2, 6))
+        ax.scatter(list(datos_filtrados.keys()), list(datos_filtrados.values()), color="purple", edgecolors="black")
+        ax.set_title("Peso promedio por Aerolínea (Top 50 más frecuentes)")
+        ax.set_xlabel("Aerolínea")
+        ax.set_ylabel("Peso Promedio")
+        plt.xticks(rotation=90)
+        plt.tight_layout(pad=2.0)
+        plt.show()
+
+        return
 
 def main():
     print ("*"*50)
@@ -92,15 +151,10 @@ def main():
             elif menut == 2:
                 palabra_vieja= input("¿que palabra deseas reemplazar?: ")
                 palabra_nueva= input("¿por cual palabra deseas cambiarla?: ")
-                contenido= cambiar_palabra(palabra_vieja, palabra_nueva)
+                contenido= cambiar_palabra(palabra_vieja.strip(), palabra_nueva.strip())
                 print("listo") 
             elif menut == 3: 
-                with open(ruta_archivotxt, "r") as archivo:
-                   plt.hist(archivo, bins=30, edgecolor= "green")  #crea el histograma
-                   plt.title("histograma")
-                   plt.xlabel("valores")
-                   plt.ylabel("frecuencia")
-                   plt.show()
+                mostrar_histograma()
             else:
                 break
         elif menu == 3:
@@ -110,7 +164,7 @@ def main():
             elif menuc == 2:
                 print(calcular_estadisticas())
             elif menuc == 3:
-                pass
+                graficar()   
         else:
             break 
 if __name__== "__main__":
