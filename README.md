@@ -6,3 +6,5 @@
 ## Descripción del contenido del repositorio  
 - Reto 4, la pruebas unitarias están subidas en otro 
 
+- links de repositorios de informacion de graficas con matplotlib 
+- https://aprendeconalf.es/docencia/python/manual/matplotlib/ 

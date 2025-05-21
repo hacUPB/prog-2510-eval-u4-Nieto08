@@ -1,5 +1,4 @@
 import os, csv
-import matplotlib as plt
 import matplotlib.pyplot  as plt
 ruta_archivo= os.getcwd()
 ruta_archivotxt= os.path.join(ruta_archivo, "archivotxt.txt")
@@ -92,37 +91,37 @@ def mostrar_histograma():
         
         x_pos = range(5) # 5 Vocales
         plt.bar(x_pos, list(conteo_vocales.values()), width=0.7, color="pink", edgecolor="purple")
-        # Etiquetas centradas
-        plt.xticks(x_pos, list(conteo_vocales.keys()))
+        # centrar las x
+        plt.xticks(x_pos, list(conteo_vocales.keys()))  
         plt.show()
 def graficar():
     with open(ruta_archivocsv, 'r',) as archivo:
         lector = csv.reader(archivo)
         next(lector)  # Saltar encabezado (si existe)
-        datos = {}
+        datos = {}    # mapas 
         conteo = {}
 
         for fila in lector:
             aerolinea = fila[4]  # Columna 5 (aerolinea)
             peso = float(fila[2])  # Columna 3 (peso)
 
-            if aerolinea in datos:
-                datos[aerolinea] += peso
-                conteo[aerolinea] += 1
+            if aerolinea in datos:          
+                datos[aerolinea] += peso    # si aerolinea está en datos, sumamos el peso
+                conteo[aerolinea] += 1      # conteo de aerolineas
             else:
                 datos[aerolinea] = peso
                 conteo[aerolinea] = 1
 
         for aerolinea in datos:
-            datos[aerolinea] = float(datos[aerolinea]/ conteo[aerolinea])  # Calcular el promedio)
+            datos[aerolinea] = float(datos[aerolinea]/ conteo[aerolinea])  # (Calcular el promedio)
 
         # Obtener las 50 aerolíneas más frecuentes
-        top_50_aerolineas = sorted(conteo.items(), key=lambda x: x[1], reverse=True)[:50]
+        top_50_aerolineas = sorted(conteo.items(), key=lambda x: x[1], reverse=True)[:50]  #info de ia para ordenar de mayor a menor la frecuencia de aerolineas
         datos_filtrados = {}
-        for x in top_50_aerolineas:
+        for x in top_50_aerolineas:                     #tomar las 50 primeros datos 
             datos_filtrados[x[0]] = datos[x[0]]
         
-        fig, ax = plt.subplots(figsize=(len(datos_filtrados) * 0.2, 6))
+        fig, ax = plt.subplots(figsize=(len(datos_filtrados) * 0.2, 6))            
         ax.scatter(list(datos_filtrados.keys()), list(datos_filtrados.values()), color="purple", edgecolors="black")
         ax.set_title("Peso promedio por Aerolínea (Top 50 más frecuentes)")
         ax.set_xlabel("Aerolínea")
@@ -130,8 +129,6 @@ def graficar():
         plt.xticks(rotation=90)
         plt.tight_layout(pad=2.0)
         plt.show()
-
-        return
 
 def main():
     print ("*"*50)
@@ -151,7 +148,7 @@ def main():
             elif menut == 2:
                 palabra_vieja= input("¿que palabra deseas reemplazar?: ")
                 palabra_nueva= input("¿por cual palabra deseas cambiarla?: ")
-                contenido= cambiar_palabra(palabra_vieja.strip(), palabra_nueva.strip())
+                contenido= cambiar_palabra(palabra_vieja.strip(), palabra_nueva.strip())   # strip, para quitar los espacios
                 print("listo") 
             elif menut == 3: 
                 mostrar_histograma()
