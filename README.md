@@ -7,4 +7,5 @@
 - Reto 4, la pruebas unitarias están subidas en otro 
 
 - links de repositorios de informacion de graficas con matplotlib 
-- https://aprendeconalf.es/docencia/python/manual/matplotlib/ 
+- [link repositorio graficos](https://aprendeconalf.es/docencia/python/manual/matplotlib/) 
+- [link video Reto4](https://youtu.be/iCyhtjRTfV4) 
